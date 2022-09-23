@@ -28,7 +28,27 @@ while (true)
         break;
     }
 
-    
+    switch (userCommand)
+    {
+        case "1":
+        {
+            string? userInput = Console.ReadLine();
+            AddText(userInput);
+            break;
+        }
+        case "2":
+            break;
+        case "4":
+            Console.WriteLine(GetLine(savedText));
+            break;
+        case "5":
+            break;
+        case "6":
+            break;
+        case "7":
+            break;
+    }
+
 }
 
 void ShowCommands()
@@ -39,4 +59,22 @@ void ShowCommands()
     }
 }
 
+void AddText(string? input)
+{
+    if (input != null)
+        for (int i = 0; i < input.Length; i++)
+        {
+            savedText[ROWS - 1, i] = input[i].ToString();
+        }
+}
 
+string GetLine(string[,] array)
+{
+    string text = "";
+    foreach (var character in array)
+    {
+        text += character;
+    }
+
+    return text;
+}
