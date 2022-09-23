@@ -1,4 +1,9 @@
-﻿string[] commands =
+﻿int ROWS = 1;
+int COLS = 100;
+
+string[,] savedText = new string[ROWS, COLS];
+
+string[] commands =
 {
     "0. End program",
     "1. Append text symbols to the end",
@@ -10,8 +15,6 @@
     "7. Clearing the console"
 };
 
-int ROWS = 1;
-string[,] savedText = new string[ROWS, 100];
 
 while (true)
 {
@@ -37,6 +40,12 @@ while (true)
             break;
         }
         case "2":
+            ROWS++;
+            string? userInput2 = Console.ReadLine();
+            savedText = AddLineToArray(savedText, ROWS, COLS);
+            AddText(userInput2);
+            break;
+        case "3":
             break;
         case "4":
             Console.WriteLine(GetLine(savedText));
@@ -46,9 +55,9 @@ while (true)
         case "6":
             break;
         case "7":
+            savedText = new string[ROWS, COLS];
             break;
     }
-
 }
 
 void ShowCommands()
@@ -71,10 +80,28 @@ void AddText(string? input)
 string GetLine(string[,] array)
 {
     string text = "";
-    foreach (var character in array)
+    for (int i = 0; i < array.GetLength(0); i++)
     {
-        text += character;
+        if (i != 0) text += "\n";
+        for (int j = 0; j < array.GetLength(1); j++)
+        {
+            text += array[i, j];
+        }
     }
 
     return text;
+}
+
+string[,] AddLineToArray(string[,] original, int rows, int cols)
+{
+    var newArray = new String[rows, cols];
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            newArray[i, j] = original[i, j];
+        }
+    }
+
+    return newArray;
 }
