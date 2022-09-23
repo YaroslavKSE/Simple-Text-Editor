@@ -35,6 +35,7 @@ while (true)
     {
         case "1":
         {
+            Console.WriteLine("Enter text to append:");
             string? userInput = Console.ReadLine();
             AddText(userInput);
             break;
@@ -46,11 +47,24 @@ while (true)
             AddText(userInput2);
             break;
         case "3":
+        {
+            Console.WriteLine("Enter the file name for saving:");
+            string? fileName = Console.ReadLine();
+            if (fileName != null)
+            {
+                await using StreamWriter file = new(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileName}");
+                await file.WriteLineAsync(GetLine(savedText));
+            }
+
             break;
+        }
         case "4":
-            Console.WriteLine(GetLine(savedText));
+            Console.WriteLine("Enter the file name for loading:");
+            string? fileNameRead = Console.ReadLine();
+            string[] lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
             break;
         case "5":
+            Console.WriteLine(GetLine(savedText));
             break;
         case "6":
             break;
@@ -95,7 +109,7 @@ string GetLine(string[,] array)
 string[,] AddLineToArray(string[,] original, int rows, int cols)
 {
     var newArray = new String[rows, cols];
-    for (int i = 0; i < ROWS; i++)
+    for (int i = 0; i < ROWS - 1; i++)
     {
         for (int j = 0; j < COLS; j++)
         {
