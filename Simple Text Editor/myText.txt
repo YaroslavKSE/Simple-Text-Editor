@@ -1,0 +1,2 @@
+Understand the basics of procedural and structural programming by having hands-on experience in using these paradigms.Testing append function.
+New line testing.

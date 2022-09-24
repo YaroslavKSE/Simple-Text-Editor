@@ -1,6 +1,6 @@
 ﻿int ROWS = 1;
 int COLS = 100;
-
+int freeSpace = 0;
 string[,] savedText = new string[ROWS, COLS];
 
 string[] commands =
@@ -42,8 +42,10 @@ while (true)
         }
         case "2":
             ROWS++;
+            Console.WriteLine("New line started. Enter text to append:");
             string? userInput2 = Console.ReadLine();
             savedText = AddLineToArray(savedText, ROWS, COLS);
+            freeSpace = 0;
             AddText(userInput2);
             break;
         case "3":
@@ -62,6 +64,18 @@ while (true)
             Console.WriteLine("Enter the file name for loading:");
             string? fileNameRead = Console.ReadLine();
             string[] lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
+            ROWS = lines.Length;
+            string[,] array = new string[ROWS, COLS];
+            savedText = array;
+            for (int i = 0; i < ROWS; i++)
+            {
+                var word = lines[i].ToArray();
+                for (int j = 0; j < lines[i].Length; j++)
+                {
+                    savedText[i, j] = word[j].ToString();
+                }
+            }
+
             break;
         case "5":
             Console.WriteLine(GetLine(savedText));
@@ -84,11 +98,24 @@ void ShowCommands()
 
 void AddText(string? input)
 {
+    var wordLenght = 0;
     if (input != null)
-        for (int i = 0; i < input.Length; i++)
+        if (input.Length > COLS)
         {
-            savedText[ROWS - 1, i] = input[i].ToString();
+            COLS *= 3;
+            savedText = AddLineToArray(savedText, ROWS, COLS);
         }
+
+    while (wordLenght != input.Length)
+    {
+        for (int i = freeSpace; i < input.Length + freeSpace; i++)
+        {
+            savedText[ROWS - 1, i] = input[wordLenght].ToString();
+            wordLenght++;
+        }
+    }
+
+    freeSpace = input.Length;
 }
 
 string GetLine(string[,] array)
