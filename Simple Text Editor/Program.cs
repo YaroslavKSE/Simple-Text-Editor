@@ -1,5 +1,5 @@
 ﻿int ROWS = 1;
-int COLS = 100;
+int COLS = 300;
 int freeSpace = 0;
 string[,] savedText = new string[ROWS, COLS];
 
@@ -55,7 +55,7 @@ while (true)
             if (fileName != null)
             {
                 await using StreamWriter file = new(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileName}");
-                await file.WriteLineAsync(GetLine(savedText));
+                await file.WriteLineAsync(GetText(savedText));
             }
 
             break;
@@ -78,9 +78,16 @@ while (true)
 
             break;
         case "5":
-            Console.WriteLine(GetLine(savedText));
+            Console.WriteLine(GetText(savedText));
             break;
         case "6":
+            Console.WriteLine("Choose line and index:");
+            string[] userInput3 = Console.ReadLine().Split(' ');
+            Console.WriteLine("Enter text to insert:");
+            string? userInput4 = Console.ReadLine();
+            var line = int.Parse(userInput3[0]);
+            var index = int.Parse(userInput3[1]);
+            AddTextInside(userInput4, line, index);
             break;
         case "7":
             savedText = new string[ROWS, COLS];
@@ -106,7 +113,7 @@ void AddText(string? input)
             savedText = AddLineToArray(savedText, ROWS, COLS);
         }
 
-    while (wordLenght != input.Length)
+    while (input != null && wordLenght != input.Length)
     {
         for (int i = freeSpace; i < input.Length + freeSpace; i++)
         {
@@ -118,7 +125,72 @@ void AddText(string? input)
     freeSpace = input.Length;
 }
 
-string GetLine(string[,] array)
+void AddTextInside(string? input, int line, int column)
+{
+    if (line > ROWS)
+    {
+        savedText = AddLineToArray(savedText, line, COLS);
+        ROWS = line;
+        freeSpace = 0;
+    }
+
+    var text = GetLine(savedText, line - 1);
+    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+    if (savedText[line - 1, column] == null)
+    {
+        var wordLenght = 0;
+        while (wordLenght != input.Length)
+        {
+            for (int i = column; i < COLS; i++)
+            {
+                savedText[line - 1, i] = input[wordLenght].ToString();
+                wordLenght++;
+                if (wordLenght == input.Length)
+                {
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        var substrings = SplitAt(text, column);
+        if (input != null)
+        {
+            var wordLenght = 0;
+            while (wordLenght != input.Length)
+            {
+                for (int i = column; i < COLS; i++)
+                {
+                    savedText[line - 1, i] = input[wordLenght].ToString();
+                    wordLenght++;
+                    if (wordLenght == input.Length)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            var counter1 = 0;
+            for (int i = 0; i < column; i++)
+            {
+                if (counter1 > substrings[0].Length) break;
+                savedText[line - 1, i] = substrings[0][counter1].ToString();
+                counter1++;
+            }
+
+            var counter2 = 0;
+            for (int i = column + input.Length; i < COLS; i++)
+            {
+                if (counter2 >= substrings[1].Length) break;
+                savedText[line - 1, i] = substrings[1][counter2].ToString();
+                counter2++;
+            }
+        }
+    }
+}
+
+string GetText(string[,] array)
 {
     string text = "";
     for (int i = 0; i < array.GetLength(0); i++)
@@ -128,6 +200,17 @@ string GetLine(string[,] array)
         {
             text += array[i, j];
         }
+    }
+
+    return text;
+}
+
+string GetLine(string[,] array, int line)
+{
+    string text = "";
+    for (int j = 0; j < array.GetLength(1) && j != null; j++)
+    {
+        text += array[line, j];
     }
 
     return text;
@@ -145,4 +228,19 @@ string[,] AddLineToArray(string[,] original, int rows, int cols)
     }
 
     return newArray;
+}
+
+string[] SplitAt(string source, params int[] index)
+{
+    index = index.Distinct().OrderBy(x => x).ToArray();
+    string[] output = new string[index.Length + 1];
+    int pos = 0;
+
+    for (int i = 0; i < index.Length; pos = index[i++])
+    {
+        output[i] = source.Substring(pos, index[i] - pos);
+    }
+
+    output[index.Length] = source.Substring(pos);
+    return output;
 }
