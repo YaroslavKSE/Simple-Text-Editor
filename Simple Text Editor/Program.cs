@@ -1,7 +1,8 @@
 ﻿int ROWS = 1;
-int COLS = 300;
+int COLS = 50;
 int freeSpace = 0;
-string[,] savedText = new string[ROWS, COLS];
+var savedText = new List<string[]>();
+string[] savedLine = new string[COLS];
 
 string[] commands =
 {
@@ -42,56 +43,57 @@ while (true)
         }
         case "2":
             ROWS++;
+            freeSpace = 0;
             Console.WriteLine("New line started. Enter text to append:");
             string? userInput2 = Console.ReadLine();
-            savedText = AddLineToArray(savedText, ROWS, COLS);
-            freeSpace = 0;
+            savedText.Add(new string[] { });
+            savedLine = new string[COLS];
             AddText(userInput2);
             break;
-        case "3":
-        {
-            Console.WriteLine("Enter the file name for saving:");
-            string? fileName = Console.ReadLine();
-            if (fileName != null)
-            {
-                await using StreamWriter file = new(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileName}");
-                await file.WriteLineAsync(GetText(savedText));
-            }
-
-            break;
-        }
-        case "4":
-            Console.WriteLine("Enter the file name for loading:");
-            string? fileNameRead = Console.ReadLine();
-            string[] lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
-            ROWS = lines.Length;
-            string[,] array = new string[ROWS, COLS];
-            savedText = array;
-            for (int i = 0; i < ROWS; i++)
-            {
-                var word = lines[i].ToArray();
-                for (int j = 0; j < lines[i].Length; j++)
-                {
-                    savedText[i, j] = word[j].ToString();
-                }
-            }
-
-            break;
+        // case "3":
+        // {
+        //     Console.WriteLine("Enter the file name for saving:");
+        //     string? fileName = Console.ReadLine();
+        //     if (fileName != null)
+        //     {
+        //         await using StreamWriter file = new(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileName}");
+        //         await file.WriteLineAsync(GetText(savedText));
+        //     }
+        //
+        //     break;
+        // }
+        // case "4":
+        //     Console.WriteLine("Enter the file name for loading:");
+        //     string? fileNameRead = Console.ReadLine();
+        //     string[] lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
+        //     ROWS = lines.Length;
+        //     string[,] array = new string[ROWS, COLS];
+        //     savedText = array;
+        //     for (int i = 0; i < ROWS; i++)
+        //     {
+        //         var word = lines[i].ToArray();
+        //         for (int j = 0; j < lines[i].Length; j++)
+        //         {
+        //             savedText[i, j] = word[j].ToString();
+        //         }
+        //     }
+        //
+        //     break;
         case "5":
             Console.WriteLine(GetText(savedText));
             break;
-        case "6":
-            Console.WriteLine("Choose line and index:");
-            string[] userInput3 = Console.ReadLine().Split(' ');
-            Console.WriteLine("Enter text to insert:");
-            string? userInput4 = Console.ReadLine();
-            var line = int.Parse(userInput3[0]);
-            var index = int.Parse(userInput3[1]);
-            AddTextInside(userInput4, line, index);
-            break;
-        case "7":
-            savedText = new string[ROWS, COLS];
-            break;
+        // case "6":
+        //     Console.WriteLine("Choose line and index:");
+        //     string[] userInput3 = Console.ReadLine().Split(' ');
+        //     Console.WriteLine("Enter text to insert:");
+        //     string? userInput4 = Console.ReadLine();
+        //     var line = int.Parse(userInput3[0]);
+        //     var index = int.Parse(userInput3[1]);
+        //     AddTextInside(userInput4, line, index);
+        //     break;
+        // case "7":
+        //     savedText = new string[ROWS, COLS];
+        //     break;
     }
 }
 
@@ -107,98 +109,104 @@ void AddText(string? input)
 {
     var wordLenght = 0;
     if (input != null)
-        if (input.Length > COLS)
+        while (input.Length + freeSpace > COLS)
         {
             COLS *= 3;
-            savedText = AddLineToArray(savedText, ROWS, COLS);
+            savedLine = ExpandArray(savedLine, COLS);
         }
 
     while (input != null && wordLenght != input.Length)
     {
         for (int i = freeSpace; i < input.Length + freeSpace; i++)
         {
-            savedText[ROWS - 1, i] = input[wordLenght].ToString();
+            savedLine[i] = input[wordLenght].ToString();
             wordLenght++;
         }
     }
 
-    freeSpace = input.Length;
+    freeSpace += input.Length;
+    if (savedText.Count == 0)
+    {
+        savedText.Add(savedLine);
+    }
+
+    savedText[ROWS - 1] = savedLine;
 }
 
-void AddTextInside(string? input, int line, int column)
-{
-    if (line > ROWS)
-    {
-        savedText = AddLineToArray(savedText, line, COLS);
-        ROWS = line;
-        freeSpace = 0;
-    }
+// void AddTextInside(string? input, int line, int column)
+// {
+//     if (line > ROWS)
+//     {
+//         savedText = AddLineToArray(savedText, line, COLS);
+//         ROWS = line;
+//         freeSpace = 0;
+//     }
+//
+//     var text = GetLine(savedText, line - 1);
+//     // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+//     if (savedText[line - 1, column] == null)
+//     {
+//         var wordLenght = 0;
+//         while (wordLenght != input.Length)
+//         {
+//             for (int i = column; i < COLS; i++)
+//             {
+//                 savedText[line - 1, i] = input[wordLenght].ToString();
+//                 wordLenght++;
+//                 if (wordLenght == input.Length)
+//                 {
+//                     break;
+//                 }
+//             }
+//         }
+//     }
+//     else
+//     {
+//         var substrings = SplitAt(text, column);
+//         if (input != null)
+//         {
+//             var wordLenght = 0;
+//             while (wordLenght != input.Length)
+//             {
+//                 for (int i = column; i < COLS; i++)
+//                 {
+//                     savedText[line - 1, i] = input[wordLenght].ToString();
+//                     wordLenght++;
+//                     if (wordLenght == input.Length)
+//                     {
+//                         break;
+//                     }
+//                 }
+//             }
+//
+//             var counter1 = 0;
+//             for (int i = 0; i < column; i++)
+//             {
+//                 if (counter1 > substrings[0].Length) break;
+//                 savedText[line - 1, i] = substrings[0][counter1].ToString();
+//                 counter1++;
+//             }
+//
+//             var counter2 = 0;
+//             for (int i = column + input.Length; i < COLS; i++)
+//             {
+//                 if (counter2 >= substrings[1].Length) break;
+//                 savedText[line - 1, i] = substrings[1][counter2].ToString();
+//                 counter2++;
+//             }
+//         }
+//     }
+// }
 
-    var text = GetLine(savedText, line - 1);
-    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-    if (savedText[line - 1, column] == null)
-    {
-        var wordLenght = 0;
-        while (wordLenght != input.Length)
-        {
-            for (int i = column; i < COLS; i++)
-            {
-                savedText[line - 1, i] = input[wordLenght].ToString();
-                wordLenght++;
-                if (wordLenght == input.Length)
-                {
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        var substrings = SplitAt(text, column);
-        if (input != null)
-        {
-            var wordLenght = 0;
-            while (wordLenght != input.Length)
-            {
-                for (int i = column; i < COLS; i++)
-                {
-                    savedText[line - 1, i] = input[wordLenght].ToString();
-                    wordLenght++;
-                    if (wordLenght == input.Length)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            var counter1 = 0;
-            for (int i = 0; i < column; i++)
-            {
-                if (counter1 > substrings[0].Length) break;
-                savedText[line - 1, i] = substrings[0][counter1].ToString();
-                counter1++;
-            }
-
-            var counter2 = 0;
-            for (int i = column + input.Length; i < COLS; i++)
-            {
-                if (counter2 >= substrings[1].Length) break;
-                savedText[line - 1, i] = substrings[1][counter2].ToString();
-                counter2++;
-            }
-        }
-    }
-}
-
-string GetText(string[,] array)
+string GetText(List<string[]> dynamicArray)
 {
     string text = "";
-    for (int i = 0; i < array.GetLength(0); i++)
+    for (int i = 0; i < dynamicArray.Count; i++)
     {
         if (i != 0) text += "\n";
-        for (int j = 0; j < array.GetLength(1); j++)
+        for (int j = 0; j < dynamicArray[i].Length; j++)
         {
-            text += array[i, j];
+            text += dynamicArray[i][j];
         }
     }
 
@@ -216,15 +224,12 @@ string GetLine(string[,] array, int line)
     return text;
 }
 
-string[,] AddLineToArray(string[,] original, int rows, int cols)
+string[] ExpandArray(string[] original, int cols)
 {
-    var newArray = new String[rows, cols];
-    for (int i = 0; i < ROWS - 1; i++)
+    var newArray = new String[cols];
+    for (int i = 0; i < freeSpace; i++)
     {
-        for (int j = 0; j < COLS; j++)
-        {
-            newArray[i, j] = original[i, j];
-        }
+        newArray[i] = original[i];
     }
 
     return newArray;
