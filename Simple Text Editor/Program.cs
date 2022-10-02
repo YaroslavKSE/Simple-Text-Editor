@@ -1,5 +1,5 @@
 ﻿int ROWS = 1;
-int COLS = 50;
+int COLS = 30;
 int freeSpace = 0;
 var savedText = new List<string[]>();
 string[] savedLine = new string[COLS];
@@ -47,38 +47,32 @@ while (true)
             Console.WriteLine("New line started. Enter text to append:");
             string? userInput2 = Console.ReadLine();
             savedText.Add(new string[] { });
-            savedLine = new string[COLS];
+            savedLine = new string[userInput2.Length];
             AddText(userInput2);
             break;
-        // case "3":
-        // {
-        //     Console.WriteLine("Enter the file name for saving:");
-        //     string? fileName = Console.ReadLine();
-        //     if (fileName != null)
-        //     {
-        //         await using StreamWriter file = new(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileName}");
-        //         await file.WriteLineAsync(GetText(savedText));
-        //     }
-        //
-        //     break;
-        // }
-        // case "4":
-        //     Console.WriteLine("Enter the file name for loading:");
-        //     string? fileNameRead = Console.ReadLine();
-        //     string[] lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
-        //     ROWS = lines.Length;
-        //     string[,] array = new string[ROWS, COLS];
-        //     savedText = array;
-        //     for (int i = 0; i < ROWS; i++)
-        //     {
-        //         var word = lines[i].ToArray();
-        //         for (int j = 0; j < lines[i].Length; j++)
-        //         {
-        //             savedText[i, j] = word[j].ToString();
-        //         }
-        //     }
-        //
-        //     break;
+        case "3":
+        {
+            Console.WriteLine("Enter the file name for saving:");
+            string? fileName = Console.ReadLine();
+            if (fileName != null)
+            {
+                await using StreamWriter file = new(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileName}");
+                await file.WriteLineAsync(GetText(savedText));
+            }
+
+            break;
+        }
+        case "4":
+            Console.WriteLine("Enter the file name for loading:");
+            string? fileNameRead = Console.ReadLine();
+            string[] lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
+
+            LoadToMemory(lines);
+
+            ROWS = lines.Length;
+            freeSpace = lines[ROWS - 1].Length;
+
+            break;
         case "5":
             Console.WriteLine(GetText(savedText));
             break;
@@ -91,9 +85,9 @@ while (true)
         //     var index = int.Parse(userInput3[1]);
         //     AddTextInside(userInput4, line, index);
         //     break;
-        // case "7":
-        //     savedText = new string[ROWS, COLS];
-        //     break;
+        case "7":
+            savedText = new List<string[]>();
+            break;
     }
 }
 
@@ -109,9 +103,9 @@ void AddText(string? input)
 {
     var wordLenght = 0;
     if (input != null)
-        while (input.Length + freeSpace > COLS)
+        while (input.Length + freeSpace > savedLine.Length)
         {
-            COLS *= 3;
+            COLS *= 2;
             savedLine = ExpandArray(savedLine, COLS);
         }
 
@@ -129,8 +123,10 @@ void AddText(string? input)
     {
         savedText.Add(savedLine);
     }
-
-    savedText[ROWS - 1] = savedLine;
+    else
+    {
+        savedText[ROWS - 1] = savedLine;
+    }
 }
 
 // void AddTextInside(string? input, int line, int column)
@@ -233,6 +229,20 @@ string[] ExpandArray(string[] original, int cols)
     }
 
     return newArray;
+}
+
+void LoadToMemory(string[] array)
+{
+    int counter = 0;
+    while (counter != array.Length)
+    {
+        savedText.Add(new string[] { });
+        savedLine = new string[array[counter].Length];
+        AddText(array[counter]);
+        counter++;
+        freeSpace = 0;
+        ROWS++;
+    }
 }
 
 string[] SplitAt(string source, params int[] index)
