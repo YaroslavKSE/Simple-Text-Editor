@@ -1,3 +1,4 @@
 Understand the basics of procedural and structural programming by having hands-on experience in using these paradigms.Testing append function.
 New line testing. Memory Optimizations
-Hello, text editor!
+Hello, text editor!Append testing.
+New line adding. 
