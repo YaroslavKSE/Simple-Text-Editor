@@ -90,7 +90,7 @@ while (true)
         case "7":
             Console.WriteLine("Choose world to search");
             string? userInput5 = Console.ReadLine();
-            
+            Console.WriteLine($"Founded '{userInput5}' {SearchSubstring(savedText, userInput5)}");
             break;
         case "8":
             savedText = new List<string[]>();
@@ -202,21 +202,50 @@ void AddTextInside(string? input, int line, int column)
     }
 }
 
-// string SearchSubstring(List<string[]> text, string substring)
-// {
-//     string substringFound = "";
-//     int occurrence = 0;
-//     foreach (var line in text)
-//     {
-//         for (int i = 0; i < line.Length; i++)
-//         {
-//             if (line[i] == substring[i].ToString())
-//             {
-//                
-//             }
-//         }
-//     }
-// }
+string SearchSubstring(List<string[]> text, string substring)
+{
+    string sameLetters = "";
+    string substringFound = "";
+    int occurrence = 0;
+    int counter = 0;
+    var substringArray = substring.ToArray();
+    foreach (var line in text)
+    {
+        for (int i = 0; i < line.Length; i++)
+        {
+            if (line[i] == substringArray[counter].ToString() && counter < substring.Length)
+            {
+                counter++;
+                sameLetters += line[i];
+            }
+
+            if (counter != 0 && counter < substring.Length - 1)
+            {
+                if (line[i + 1] != substringArray[counter].ToString())
+                {
+                    sameLetters = "";
+                    counter = 0;
+                }
+            }
+
+            if (counter > substring.Length - 1 && i + 1 < line.Length)
+            {
+                if (line[i + 1] != substringArray[substring.Length - 1].ToString())
+                {
+                    counter = 0;
+                    if (sameLetters == substring)
+                    {
+                        substringFound += $"[{savedText.IndexOf(line)}] ";
+                        occurrence++;
+                        sameLetters = "";
+                    }
+                }
+            }
+        }
+    }
+
+    return $"{occurrence} times at line: {substringFound}.";
+}
 
 string GetText(List<string[]> dynamicArray)
 {
