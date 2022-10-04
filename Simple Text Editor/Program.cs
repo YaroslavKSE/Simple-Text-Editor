@@ -1,8 +1,8 @@
-﻿int ROWS = 1;
-int COLS = 30;
-int freeSpace = 0;
+﻿var ROWS = 1;
+var COLS = 30;
+var freeSpace = 0;
 var savedText = new List<string[]>();
-string[] savedLine = new string[COLS];
+var savedLine = new string[COLS];
 
 string[] commands =
 {
@@ -22,23 +22,17 @@ while (true)
 {
     Console.WriteLine("Write -help to see the commands");
     Console.WriteLine("Choose the command:");
-    string? userCommand = Console.ReadLine();
-    if (userCommand == "-help")
-    {
-        ShowCommands();
-    }
+    var userCommand = Console.ReadLine();
+    if (userCommand == "-help") ShowCommands();
 
-    if (userCommand == "0")
-    {
-        break;
-    }
+    if (userCommand == "0") break;
 
     switch (userCommand)
     {
         case "1":
         {
             Console.WriteLine("Enter text to append:");
-            string? userInput = Console.ReadLine();
+            var userInput = Console.ReadLine();
             AddText(userInput);
             break;
         }
@@ -46,7 +40,7 @@ while (true)
             ROWS++;
             freeSpace = 0;
             Console.WriteLine("New line started. Enter text to append:");
-            string? userInput2 = Console.ReadLine();
+            var userInput2 = Console.ReadLine();
             savedText.Add(new string[] { });
             savedLine = new string[userInput2.Length];
             AddText(userInput2);
@@ -54,7 +48,7 @@ while (true)
         case "3":
         {
             Console.WriteLine("Enter the file name for saving:");
-            string? fileName = Console.ReadLine();
+            var fileName = Console.ReadLine();
             if (fileName != null && fileName.EndsWith(".txt"))
             {
                 await using StreamWriter file = new(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileName}");
@@ -65,10 +59,12 @@ while (true)
         }
         case "4":
             Console.WriteLine("Enter the file name for loading:");
-            string? fileNameRead = Console.ReadLine();
+            var fileNameRead = Console.ReadLine();
             if (fileNameRead != null && fileNameRead.EndsWith(".txt"))
             {
-                string[] lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
+                var lines = File.ReadAllLines(@$"D:\C#\Simple Text Editor\Simple Text Editor\{fileNameRead}");
+                savedText = new List<string[]>();
+                freeSpace = 0;
                 LoadToMemory(lines);
                 ROWS = lines.Length;
                 freeSpace = lines[ROWS - 1].Length;
@@ -80,16 +76,16 @@ while (true)
             break;
         case "6":
             Console.WriteLine("Choose line and index:");
-            string[] userInput3 = Console.ReadLine().Split(' ');
+            var userInput3 = Console.ReadLine().Split(' ');
             Console.WriteLine("Enter text to insert:");
-            string? userInput4 = Console.ReadLine();
+            var userInput4 = Console.ReadLine();
             var line = int.Parse(userInput3[0]);
             var index = int.Parse(userInput3[1]);
             AddTextInside(userInput4, line, index);
             break;
         case "7":
             Console.WriteLine("Choose world to search");
-            string? userInput5 = Console.ReadLine();
+            var userInput5 = Console.ReadLine();
             Console.WriteLine($"Founded '{userInput5}' {SearchSubstring(savedText, userInput5)}");
             break;
         case "8":
@@ -100,10 +96,7 @@ while (true)
 
 void ShowCommands()
 {
-    foreach (var command in commands)
-    {
-        Console.WriteLine(command);
-    }
+    foreach (var command in commands) Console.WriteLine(command);
 }
 
 void AddText(string? input)
@@ -113,34 +106,28 @@ void AddText(string? input)
         while (input.Length + freeSpace > savedLine.Length)
         {
             COLS *= 2;
-            savedLine = ExpandArray(savedLine, COLS);
+            savedLine = ExpandArray(savedLine, input.Length + freeSpace + savedLine.Length);
         }
 
     while (input != null && wordLenght != input.Length)
-    {
-        for (int i = freeSpace; i < input.Length + freeSpace; i++)
+        for (var i = freeSpace; i < input.Length + freeSpace; i++)
         {
             savedLine[i] = input[wordLenght].ToString();
             wordLenght++;
         }
-    }
 
     freeSpace += input.Length;
     if (savedText.Count == 0)
-    {
         savedText.Add(savedLine);
-    }
     else
-    {
         savedText[ROWS - 1] = savedLine;
-    }
 }
 
 void AddTextInside(string? input, int line, int column)
 {
     while (line > ROWS)
     {
-        savedText.Add(new String[] { });
+        savedText.Add(new string[] { });
         ROWS++;
         freeSpace = 0;
     }
@@ -152,17 +139,12 @@ void AddTextInside(string? input, int line, int column)
     {
         var wordLenght = 0;
         while (wordLenght != input.Length)
-        {
-            for (int i = column; i < COLS; i++)
+            for (var i = column; i < COLS; i++)
             {
                 savedText[line - 1][i] = input[wordLenght].ToString();
                 wordLenght++;
-                if (wordLenght == input.Length)
-                {
-                    break;
-                }
+                if (wordLenght == input.Length) break;
             }
-        }
     }
     else
     {
@@ -171,20 +153,15 @@ void AddTextInside(string? input, int line, int column)
         {
             var wordLenght = 0;
             while (wordLenght != input.Length)
-            {
-                for (int i = column; i < column + input.Length; i++)
+                for (var i = column; i < column + input.Length; i++)
                 {
                     savedText[line - 1][i] = input[wordLenght].ToString();
                     wordLenght++;
-                    if (wordLenght == input.Length)
-                    {
-                        break;
-                    }
+                    if (wordLenght == input.Length) break;
                 }
-            }
 
             var counter1 = 0;
-            for (int i = 0; i < column; i++)
+            for (var i = 0; i < column; i++)
             {
                 if (counter1 > substrings[0].Length) break;
                 savedText[line - 1][i] = substrings[0][counter1].ToString();
@@ -192,7 +169,7 @@ void AddTextInside(string? input, int line, int column)
             }
 
             var counter2 = 0;
-            for (int i = column + input.Length; i < savedText[line - 1].Length; i++)
+            for (var i = column + input.Length; i < savedText[line - 1].Length; i++)
             {
                 if (counter2 >= substrings[1].Length) break;
                 savedText[line - 1][i] = substrings[1][counter2].ToString();
@@ -202,16 +179,15 @@ void AddTextInside(string? input, int line, int column)
     }
 }
 
-string SearchSubstring(List<string[]> text, string substring)
+string SearchSubstring(List<string[]> text, string? substring)
 {
-    string sameLetters = "";
-    string substringFound = "";
-    int occurrence = 0;
-    int counter = 0;
+    var sameLetters = "";
+    var substringFound = "";
+    var occurrence = 0;
+    var counter = 0;
     var substringArray = substring.ToArray();
     foreach (var line in text)
-    {
-        for (int i = 0; i < line.Length; i++)
+        for (var i = 0; i < line.Length; i++)
         {
             if (line[i] == substringArray[counter].ToString() && counter < substring.Length)
             {
@@ -220,16 +196,13 @@ string SearchSubstring(List<string[]> text, string substring)
             }
 
             if (counter != 0 && counter < substring.Length - 1)
-            {
                 if (line[i + 1] != substringArray[counter].ToString())
                 {
                     sameLetters = "";
                     counter = 0;
                 }
-            }
 
             if (counter > substring.Length - 1 && i + 1 < line.Length)
-            {
                 if (line[i + 1] != substringArray[substring.Length - 1].ToString())
                 {
                     counter = 0;
@@ -240,23 +213,18 @@ string SearchSubstring(List<string[]> text, string substring)
                         sameLetters = "";
                     }
                 }
-            }
         }
-    }
 
     return $"{occurrence} times at line: {substringFound}.";
 }
 
 string GetText(List<string[]> dynamicArray)
 {
-    string text = "";
-    for (int i = 0; i < dynamicArray.Count; i++)
+    var text = "";
+    for (var i = 0; i < dynamicArray.Count; i++)
     {
         if (i != 0) text += "\n";
-        for (int j = 0; j < dynamicArray[i].Length; j++)
-        {
-            text += dynamicArray[i][j];
-        }
+        for (var j = 0; j < dynamicArray[i].Length; j++) text += dynamicArray[i][j];
     }
 
     return text;
@@ -264,29 +232,23 @@ string GetText(List<string[]> dynamicArray)
 
 string GetLine(List<string[]> array, int line)
 {
-    string text = "";
-    for (int j = 0; j < array[line].Length && j != null; j++)
-    {
-        text += array[line][j];
-    }
+    var text = "";
+    for (var j = 0; j < array[line].Length; j++) text += array[line][j];
 
     return text;
 }
 
 string[] ExpandArray(string[] original, int cols)
 {
-    var newArray = new String[cols];
-    for (int i = 0; i < original.Length; i++)
-    {
-        newArray[i] = original[i];
-    }
+    var newArray = new string[cols];
+    for (var i = 0; i < original.Length; i++) newArray[i] = original[i];
 
     return newArray;
 }
 
 void LoadToMemory(string[] array)
 {
-    int counter = 0;
+    var counter = 0;
     while (counter != array.Length)
     {
         savedText.Add(new string[] { });
@@ -301,13 +263,10 @@ void LoadToMemory(string[] array)
 string[] SplitAt(string source, params int[] index)
 {
     index = index.Distinct().OrderBy(x => x).ToArray();
-    string[] output = new string[index.Length + 1];
-    int pos = 0;
+    var output = new string[index.Length + 1];
+    var pos = 0;
 
-    for (int i = 0; i < index.Length; pos = index[i++])
-    {
-        output[i] = source.Substring(pos, index[i] - pos);
-    }
+    for (var i = 0; i < index.Length; pos = index[i++]) output[i] = source.Substring(pos, index[i] - pos);
 
     output[index.Length] = source.Substring(pos);
     return output;
