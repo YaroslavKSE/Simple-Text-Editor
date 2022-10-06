@@ -1,8 +1,7 @@
-﻿var ROWS = 1;
-var COLS = 30;
+﻿var rows = 1;
 var freeSpace = 0;
 var savedText = new List<string[]>();
-var savedLine = new string[COLS];
+var savedLine = new string[] { };
 
 string[] commands =
 {
@@ -37,7 +36,7 @@ while (true)
             break;
         }
         case "2":
-            ROWS++;
+            rows++;
             freeSpace = 0;
             Console.WriteLine("New line started. Enter text to append:");
             var userInput2 = Console.ReadLine();
@@ -66,8 +65,8 @@ while (true)
                 savedText = new List<string[]>();
                 freeSpace = 0;
                 LoadToMemory(lines);
-                ROWS = lines.Length;
-                freeSpace = lines[ROWS - 1].Length;
+                rows = lines.Length;
+                freeSpace = lines[rows - 1].Length;
             }
 
             break;
@@ -104,10 +103,7 @@ void AddText(string? input)
     var wordLenght = 0;
     if (input != null)
         while (input.Length + freeSpace > savedLine.Length)
-        {
-            COLS *= 2;
             savedLine = ExpandArray(savedLine, input.Length + freeSpace + savedLine.Length);
-        }
 
     while (input != null && wordLenght != input.Length)
         for (var i = freeSpace; i < input.Length + freeSpace; i++)
@@ -120,15 +116,15 @@ void AddText(string? input)
     if (savedText.Count == 0)
         savedText.Add(savedLine);
     else
-        savedText[ROWS - 1] = savedLine;
+        savedText[rows - 1] = savedLine;
 }
 
 void AddTextInside(string? input, int line, int column)
 {
-    while (line > ROWS)
+    while (line > rows)
     {
         savedText.Add(new string[] { });
-        ROWS++;
+        rows++;
         freeSpace = 0;
     }
 
@@ -139,7 +135,7 @@ void AddTextInside(string? input, int line, int column)
     {
         var wordLenght = 0;
         while (wordLenght != input.Length)
-            for (var i = column; i < COLS; i++)
+            for (var i = column; i < input.Length; i++)
             {
                 savedText[line - 1][i] = input[wordLenght].ToString();
                 wordLenght++;
@@ -195,12 +191,20 @@ string SearchSubstring(List<string[]> text, string? substring)
                 sameLetters += line[i];
             }
 
-            if (counter != 0 && counter < substring.Length - 1)
+            if (counter != 0 && counter <= substring.Length - 1)
                 if (line[i + 1] != substringArray[counter].ToString())
                 {
                     sameLetters = "";
                     counter = 0;
                 }
+
+            if (i + 1 >= line.Length && counter == 1)
+            {
+                substringFound += $"[{savedText.IndexOf(line) - 1}] ";
+                counter = 0;
+                occurrence++;
+                sameLetters = "";
+            }
 
             if (counter > substring.Length - 1 && i + 1 < line.Length)
                 if (line[i + 1] != substringArray[substring.Length - 1].ToString())
@@ -249,6 +253,7 @@ string[] ExpandArray(string[] original, int cols)
 void LoadToMemory(string[] array)
 {
     var counter = 0;
+    rows = 1;
     while (counter != array.Length)
     {
         savedText.Add(new string[] { });
@@ -256,7 +261,7 @@ void LoadToMemory(string[] array)
         AddText(array[counter]);
         counter++;
         freeSpace = 0;
-        ROWS++;
+        rows++;
     }
 }
 
